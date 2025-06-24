@@ -1,120 +1,95 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+﻿#SingleInstance Force
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+
+Menu, Tray, Icon, mouse_off.ico
 
 CapsLock::Esc
 Esc::`
-
 ^CapsLock::CapsLock
 
-#SingleInstance Force
-#NoEnv
-SetWorkingDir %A_ScriptDir%
+; ========================
+;   MODO MOUSE COM JKLI
+; ========================
 
 mouseMode := false
 isHoldingClick := false
 
-; Ícones para tray, você coloca os seus .ico na pasta do script
-iconOn := A_ScriptDir . "\mouse_on.ico"
-iconOff := A_ScriptDir . "\mouse_off.ico"
-
-; Ícone inicial
-Menu, Tray, Icon, %iconOff%
-Menu, Tray, Tip, Modo Mouse: Desativado
-
-^!m::  ; Ctrl + Alt + M ativa/desativa modo mouse
+^!m::  ; Ctrl + Alt + M alterna o modo mouse
 {
     mouseMode := !mouseMode
     if (mouseMode) {
-        Menu, Tray, Icon, %iconOn%
-        Menu, Tray, Tip, Modo Mouse: Ativado
-        TrayTip, Modo Mouse, Ativado (JKLI para mover), 1
+        Menu, Tray, Icon, mouse_on.ico
+        ;Menu, Tray, Tip, Modo Mouse: Ativado
+        ;TrayTip, Modo Mouse, Ativado (JKLI para mover), 1
+        SetTimer, CheckKeys, 10
     } else {
-        Menu, Tray, Icon, %iconOff%
-        Menu, Tray, Tip, Modo Mouse: Desativado
-        TrayTip, Modo Mouse, Desativado, 1
+        Menu, Tray, Icon, mouse_off.ico
+        ;Menu, Tray, Tip, Modo Mouse: Desativado
+        ;TrayTip, Modo Mouse, Desativado, 1
+        SetTimer, CheckKeys, Off
     }
     return
 }
 
 #If (mouseMode)
 
-; Função para mover o mouse continuamente enquanto tecla está pressionada
-MoveMouseContinuous(dx, dy, speed := 10) {
-    SetKeyDelay, -1  ; acelera a repetição
-    while GetKeyState(A_ThisHotkey, "P") {
-        MouseMove, dx, dy, 0, R
-        Sleep, speed
+; Loop contínuo de verificação de teclas pressionadas
+CheckKeys:
+{
+    speed := 10
+    step := 10
+
+    if GetKeyState("Shift", "P") {
+        step := 2
+        speed := 30
+    } else if GetKeyState("Alt", "P") {
+        step := 25
+        speed := 5
     }
+
+    dx := 0
+    dy := 0
+
+    if GetKeyState("j", "P")
+        dx -= step
+    if GetKeyState("l", "P")
+        dx += step
+    if GetKeyState("i", "P")
+        dy -= step
+    if GetKeyState("k", "P")
+        dy += step
+
+    if (dx != 0 or dy != 0)
+        MouseMove, dx, dy, 0, R
+
+    return
 }
 
-; Ao pressionar J, K, L, I, chama o loop contínuo de movimento
+; === BLOQUEIO DE DIGITAÇÃO ===
+j::return
+k::return
+l::return
+i::return
 
-j::
-    MoveMouseContinuous(-10, 0, 20)
-return
++J::return
++K::return
++L::return
++I::return
 
-l::
-    MoveMouseContinuous(10, 0, 20)
-return
+!J::return
+!K::return
+!L::return
+!I::return
 
-i::
-    MoveMouseContinuous(0, -10, 20)
-return
-
-k::
-    MoveMouseContinuous(0, 10, 20)
-return
-
-; Shift para movimentos mais lentos
-
-+j::
-    MoveMouseContinuous(-2, 0, 30)
-return
-
-+l::
-    MoveMouseContinuous(2, 0, 30)
-return
-
-+i::
-    MoveMouseContinuous(0, -2, 30)
-return
-
-+k::
-    MoveMouseContinuous(0, 2, 30)
-return
-
-; Alt para movimentos mais rápidos
-
-!j::
-    MoveMouseContinuous(-25, 0, 10)
-return
-
-!l::
-    MoveMouseContinuous(25, 0, 10)
-return
-
-!i::
-    MoveMouseContinuous(0, -25, 10)
-return
-
-!k::
-    MoveMouseContinuous(0, 25, 10)
-return
-
-; Cliques simples
-
+; === AÇÕES DO MODO MOUSE ===
 u::Click
 o::Click right
 m::Click middle
 
-; Scroll
-
 h::Send {WheelUp}
 n::Send {WheelDown}
-
-; Travar clique para arrastar com P
 
 p::
 {
@@ -129,5 +104,4 @@ p::
     }
     return
 }
-
 #If
