@@ -15,7 +15,7 @@ SetWorkingDir %A_ScriptDir%
 mouseMode := false
 isHoldingClick := false
 
-; Caminhos dos ícones da tray
+; Ícones para tray, você coloca os seus .ico na pasta do script
 iconOn := A_ScriptDir . "\mouse_on.ico"
 iconOff := A_ScriptDir . "\mouse_off.ico"
 
@@ -23,8 +23,7 @@ iconOff := A_ScriptDir . "\mouse_off.ico"
 Menu, Tray, Icon, %iconOff%
 Menu, Tray, Tip, Modo Mouse: Desativado
 
-; Atalho para alternar modo (Ctrl + Alt + M)
-^!m::
+^!m::  ; Ctrl + Alt + M ativa/desativa modo mouse
 {
     mouseMode := !mouseMode
     if (mouseMode) {
@@ -41,40 +40,90 @@ Menu, Tray, Tip, Modo Mouse: Desativado
 
 #If (mouseMode)
 
-; ===== Movimentação do Mouse =====
-j::MouseMove, -10, 0, 0, R
-l::MouseMove, 10, 0, 0, R
-i::MouseMove, 0, -10, 0, R
-k::MouseMove, 0, 10, 0, R
+; Função para mover o mouse continuamente enquanto tecla está pressionada
+MoveMouseContinuous(dx, dy, speed := 10) {
+    SetKeyDelay, -1  ; acelera a repetição
+    while GetKeyState(A_ThisHotkey, "P") {
+        MouseMove, dx, dy, 0, R
+        Sleep, speed
+    }
+}
 
-+J::MouseMove, -2, 0, 0, R
-+L::MouseMove, 2, 0, 0, R
-+I::MouseMove, 0, -2, 0, R
-+K::MouseMove, 0, 2, 0, R
+; Ao pressionar J, K, L, I, chama o loop contínuo de movimento
 
-!j::MouseMove, -25, 0, 0, R
-!l::MouseMove, 25, 0, 0, R
-!i::MouseMove, 0, -25, 0, R
-!k::MouseMove, 0, 25, 0, R
+j::
+    MoveMouseContinuous(-10, 0, 20)
+return
 
-; ===== Cliques =====
-u::Click                   ; Clique esquerdo
-o::Click right            ; Clique direito
-m::Click middle           ; Clique do botão scroll
+l::
+    MoveMouseContinuous(10, 0, 20)
+return
 
-; ===== Scroll =====
+i::
+    MoveMouseContinuous(0, -10, 20)
+return
+
+k::
+    MoveMouseContinuous(0, 10, 20)
+return
+
+; Shift para movimentos mais lentos
+
++j::
+    MoveMouseContinuous(-2, 0, 30)
+return
+
++l::
+    MoveMouseContinuous(2, 0, 30)
+return
+
++i::
+    MoveMouseContinuous(0, -2, 30)
+return
+
++k::
+    MoveMouseContinuous(0, 2, 30)
+return
+
+; Alt para movimentos mais rápidos
+
+!j::
+    MoveMouseContinuous(-25, 0, 10)
+return
+
+!l::
+    MoveMouseContinuous(25, 0, 10)
+return
+
+!i::
+    MoveMouseContinuous(0, -25, 10)
+return
+
+!k::
+    MoveMouseContinuous(0, 25, 10)
+return
+
+; Cliques simples
+
+u::Click
+o::Click right
+m::Click middle
+
+; Scroll
+
 h::Send {WheelUp}
 n::Send {WheelDown}
 
-; ===== Travar/soltar clique esquerdo (para arrastar)
+; Travar clique para arrastar com P
+
 p::
 {
     if (!isHoldingClick) {
-        MouseClick, left, , , , D ; Pressiona e segura
+        MouseClick, left,,,1, D
         isHoldingClick := true
         TrayTip, Modo Mouse, Clique esquerdo segurado, 1
     } else {
-        MouseClick, left, , , , U ; Solta o clique
+        MouseClick, left,,,1, U
         isHoldingClick := false
         TrayTip, Modo Mouse, Clique liberado, 1
     }
