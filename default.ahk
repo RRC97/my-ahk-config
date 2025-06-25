@@ -15,6 +15,7 @@ Esc::`
 
 mouseMode := false
 isHoldingClick := false
+isHoldingRightClick := false
 
 ^!m::  ; Ctrl + Alt + M alterna o modo mouse
 {
@@ -91,17 +92,31 @@ m::Click middle
 h::Send {WheelUp}
 n::Send {WheelDown}
 
-p::
+; === Travar clique esquerdo com U ===
++U::
 {
     if (!isHoldingClick) {
-        MouseClick, left,,,1, D
+        Send {LButton Down}
         isHoldingClick := true
-        TrayTip, Modo Mouse, Clique esquerdo segurado, 1
     } else {
-        MouseClick, left,,,1, U
+        Send {LButton Up}
         isHoldingClick := false
-        TrayTip, Modo Mouse, Clique liberado, 1
     }
     return
 }
+
+
+; === Travar clique direito com O ===
++O::
+{
+    if (!isHoldingRightClick) {
+        Send {RButton Down}
+        isHoldingRightClick := true
+    } else {
+        Send {RButton Up}
+        isHoldingRightClick := false
+    }
+    return
+}
+
 #If
