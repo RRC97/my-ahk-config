@@ -74,25 +74,76 @@ k::return
 l::return
 i::return
 
+^j::return
+^k::return
+^l::return
+^i::return
+^u::return
+^o::return
+^h::return
+^n::return
+^m::return
+
+
 +J::return
 +K::return
 +L::return
 +I::return
++U::return
++O::return
++H::return
++N::return
++M::return
+
+^+J::return
+^+K::return
+^+L::return
+^+I::return
+^+U::return
+^+O::return
+^+H::return
+^+N::return
+^+M::return
 
 !J::return
 !K::return
 !L::return
 !I::return
 
+^!J::return
+^!K::return
+^!L::return
+^!I::return
+
 ; === AÇÕES DO MODO MOUSE ===
-u::Click
-o::Click right
+u::
+{
+    if (!isHoldingClick) {
+        Send {Click}
+    } else {
+        Send {LButton Up}
+        isHoldingClick := false
+    }
+    return
+}
+o::
+{
+    if (!isHoldingRightClick) {
+        Send {Click right}
+    } else {
+        Send {LButton Up}
+        isHoldingClick := false
+    }
+    return
+}
 m::Click middle
 
 h::Send {WheelUp}
 n::Send {WheelDown}
 
 ; === Travar clique esquerdo com U ===
+!+U::
+^+U::
 +U::
 {
     if (!isHoldingClick) {
@@ -107,6 +158,8 @@ n::Send {WheelDown}
 
 
 ; === Travar clique direito com O ===
+!+O::
+^+O::
 +O::
 {
     if (!isHoldingRightClick) {
